@@ -254,19 +254,10 @@
             transform: translate(-50%, -50%) scale(0);
             font-size: 80px;
             font-weight: bold;
-            color: #c41e3a;
-            text-shadow: 0 0 30px rgba(255, 255, 255, 1),
-                         0 0 50px rgba(255, 255, 255, 0.8),
-                         0 0 70px rgba(196, 30, 58, 0.6),
-                         0 4px 10px rgba(0, 0, 0, 0.5);
+            color: #ffd700;
             z-index: 60;
             animation: none;
             white-space: nowrap;
-            background: linear-gradient(to bottom, #ff4d4d 0%, #c41e3a 50%, #8b0000 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.9));
         }
 
         #completion-message.show {
@@ -567,7 +558,7 @@
             gainNode.connect(audioContext.destination);
 
             oscillator.frequency.value = musicalNotes[noteIndex];
-            oscillator.type = 'sine';
+            oscillator.type = 'sine'; // Keep sine wave for individual cat sounds
 
             gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
             gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
@@ -577,17 +568,29 @@
         }
 
         function playCatChorus() {
-            // Jingle Bells melody: Mi Mi Mi, Mi Mi Mi, Mi Sol Do Re Mi
-            // Note indices: Mi=2, Sol=4, Do=0, Re=1
+            // Jingle Bells complete chorus melody
+            // Note indices: Do=0, Re=1, Mi=2, Fa=3, Sol=4, La=5, Si=6
             const melody = [
-                2, 2, 2,    // Mi Mi Mi
-                2, 2, 2,    // Mi Mi Mi
-                2, 4, 0, 1, 2  // Mi Sol Do Re Mi
+                // Jingle bells, jingle bells, jingle all the way
+                2, 2, 2,           // Mi Mi Mi (Jingle bells)
+                2, 2, 2,           // Mi Mi Mi (jingle bells)
+                2, 4, 0, 1, 2,     // Mi Sol Do Re Mi (jingle all the way)
+
+                // Oh what fun it is to ride in a one horse open sleigh
+                3, 3, 3, 3,        // Fa Fa Fa Fa (Oh what fun it)
+                3, 2, 2, 2, 2,     // Fa Mi Mi Mi Mi (is to ride in a)
+                2, 1, 1, 2, 1, 4   // Mi Re Re Mi Re Sol (one horse open sleigh)
             ];
             const timings = [
-                0, 400, 800,           // Mi Mi Mi (0.4s intervals)
-                1400, 1800, 2200,      // Mi Mi Mi
-                2800, 3200, 3600, 3900, 4200  // Mi Sol Do Re Mi (slightly faster)
+                // First line (Jingle bells, jingle bells, jingle all the way)
+                0, 400, 800,                    // Mi Mi Mi
+                1400, 1800, 2200,               // Mi Mi Mi
+                2800, 3200, 3600, 3900, 4200,   // Mi Sol Do Re Mi
+
+                // Second line (Oh what fun...)
+                5200, 5600, 6000, 6400,         // Fa Fa Fa Fa
+                6800, 7200, 7600, 7800, 8000,   // Fa Mi Mi Mi Mi
+                8400, 8800, 9200, 9600, 10000, 10400  // Mi Re Re Mi Re Sol
             ];
 
             const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -601,14 +604,16 @@
                 gainNode.connect(audioContext.destination);
 
                 oscillator.frequency.value = musicalNotes[noteIndex];
-                oscillator.type = 'triangle'; // Triangle wave for softer cat-like sound
+                oscillator.type = 'square'; // 8-bit chiptune square wave
 
                 const noteStart = startTime + timings[i] / 1000;
-                const noteEnd = noteStart + 0.3;
+                const noteEnd = noteStart + 0.25;
 
+                // 8-bit style envelope with sharp attack and quick decay
                 gainNode.gain.setValueAtTime(0, noteStart);
-                gainNode.gain.linearRampToValueAtTime(0.4, noteStart + 0.05);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, noteEnd);
+                gainNode.gain.linearRampToValueAtTime(0.25, noteStart + 0.01);
+                gainNode.gain.linearRampToValueAtTime(0.15, noteStart + 0.1);
+                gainNode.gain.linearRampToValueAtTime(0, noteEnd);
 
                 oscillator.start(noteStart);
                 oscillator.stop(noteEnd);
