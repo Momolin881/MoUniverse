@@ -43,138 +43,185 @@
             color: #c41e3a;
             z-index: 100;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        #timer {
+            color: #2d5016;
+            font-size: 24px;
+        }
+
+        #timer.warning {
+            color: #ff0000;
+            animation: pulse 0.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
         }
 
         #christmas-tree {
             position: relative;
-            width: 600px;
-            height: 700px;
+            width: 700px;
+            height: 750px;
         }
 
-        .tree-layer {
+        .tree-section {
             position: absolute;
             left: 50%;
             transform: translateX(-50%);
-            border-left: 150px solid transparent;
-            border-right: 150px solid transparent;
-            border-bottom: 200px solid #2d5016;
-            filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.3));
         }
 
-        .tree-layer:nth-child(1) {
-            top: 50px;
-            border-left-width: 100px;
-            border-right-width: 100px;
-            border-bottom-width: 150px;
-        }
-
-        .tree-layer:nth-child(2) {
-            top: 150px;
-            border-left-width: 130px;
-            border-right-width: 130px;
-            border-bottom-width: 170px;
-        }
-
-        .tree-layer:nth-child(3) {
-            top: 270px;
-            border-left-width: 160px;
-            border-right-width: 160px;
-            border-bottom-width: 200px;
+        .branch {
+            position: absolute;
+            background: linear-gradient(135deg, #2d5016 0%, #1a3a0d 100%);
+            transform-origin: left center;
         }
 
         .tree-trunk {
             position: absolute;
-            bottom: 20px;
+            bottom: 30px;
             left: 50%;
             transform: translateX(-50%);
-            width: 80px;
-            height: 120px;
-            background: #5c4033;
+            width: 60px;
+            height: 100px;
+            background: linear-gradient(to right, #4a3326 0%, #5c4033 50%, #4a3326 100%);
             border-radius: 5px;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
         }
 
         .star {
             position: absolute;
-            top: 10px;
+            top: 20px;
             left: 50%;
             transform: translateX(-50%);
-            font-size: 50px;
+            font-size: 60px;
             animation: sparkle 1s infinite;
+            z-index: 20;
         }
 
         @keyframes sparkle {
-            0%, 100% { transform: translateX(-50%) scale(1); }
-            50% { transform: translateX(-50%) scale(1.2); }
+            0%, 100% { transform: translateX(-50%) scale(1) rotate(0deg); }
+            50% { transform: translateX(-50%) scale(1.2) rotate(180deg); }
         }
 
         .light {
             position: absolute;
-            width: 15px;
-            height: 15px;
-            border-radius: 50%;
-            background: #666;
+            width: 12px;
+            height: 18px;
+            border-radius: 0 0 50% 50%;
+            background: #444;
             box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
             transition: all 0.3s ease;
+            z-index: 15;
+        }
+
+        .light::before {
+            content: '';
+            position: absolute;
+            top: -3px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 8px;
+            height: 4px;
+            background: #333;
+            border-radius: 2px;
         }
 
         .light.lit {
-            background: radial-gradient(circle, #fff 0%, var(--light-color) 100%);
-            box-shadow: 0 0 20px var(--light-color), 0 0 40px var(--light-color);
+            background: var(--light-color);
+            box-shadow: 0 0 15px var(--light-color), 0 0 25px var(--light-color);
             animation: glow 1s infinite;
         }
 
         @keyframes glow {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
+            0%, 100% { opacity: 1; filter: brightness(1.2); }
+            50% { opacity: 0.8; filter: brightness(0.9); }
         }
 
         .cat {
             position: absolute;
-            font-size: 35px;
+            font-size: 40px;
             cursor: pointer;
             transition: transform 0.2s;
-            z-index: 10;
+            z-index: 25;
             animation: peek 2s infinite;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
         }
 
         .cat:hover {
-            transform: scale(1.2);
+            transform: scale(1.3);
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
         }
 
         @keyframes peek {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
+            0%, 100% { transform: translateY(0) rotate(-5deg); }
+            50% { transform: translateY(-8px) rotate(5deg); }
         }
 
         .cat.found {
-            animation: found 0.5s ease-out forwards;
+            animation: found 0.6s ease-out forwards;
         }
 
         @keyframes found {
-            0% { transform: scale(1); }
+            0% { transform: scale(1) rotate(0deg); }
+            25% { transform: scale(1.3) rotate(180deg); }
             50% { transform: scale(1.5) rotate(360deg); }
-            100% { transform: scale(0); }
+            75% { transform: scale(1.2) rotate(540deg); }
+            100% { transform: scale(0) rotate(720deg); }
         }
 
         .ornament {
             position: absolute;
-            width: 30px;
-            height: 30px;
+            width: 25px;
+            height: 25px;
             border-radius: 50%;
-            background: radial-gradient(circle at 30% 30%, #ff6b9d, #c41e3a);
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            z-index: 15;
         }
 
         .ornament::before {
             content: '';
             position: absolute;
-            top: -5px;
+            top: -6px;
             left: 50%;
             transform: translateX(-50%);
-            width: 8px;
-            height: 8px;
+            width: 6px;
+            height: 6px;
             background: #ffd700;
             border-radius: 2px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .ornament::after {
+            content: '';
+            position: absolute;
+            top: 20%;
+            left: 20%;
+            width: 8px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            filter: blur(1px);
+        }
+
+        .ornament.red {
+            background: radial-gradient(circle at 30% 30%, #ff6b9d, #c41e3a);
+        }
+
+        .ornament.gold {
+            background: radial-gradient(circle at 30% 30%, #ffd700, #daa520);
+        }
+
+        .ornament.blue {
+            background: radial-gradient(circle at 30% 30%, #6bb6ff, #1e70c4);
+        }
+
+        .ornament.silver {
+            background: radial-gradient(circle at 30% 30%, #e8e8e8, #a8a8a8);
         }
 
         #fireworks-canvas {
@@ -212,6 +259,30 @@
             100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
         }
 
+        #game-over-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            font-size: 60px;
+            font-weight: bold;
+            color: #ff6b6b;
+            text-shadow: 0 0 20px #ff0000;
+            z-index: 60;
+            animation: none;
+            white-space: nowrap;
+        }
+
+        #game-over-message.show {
+            animation: gameOver 1.5s ease-out forwards;
+        }
+
+        @keyframes gameOver {
+            0% { transform: translate(-50%, -50%) scale(0); }
+            50% { transform: translate(-50%, -50%) scale(1.2); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+
         .snowflake {
             position: fixed;
             top: -10px;
@@ -226,40 +297,158 @@
                 transform: translateY(100vh);
             }
         }
+
+        #music-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s;
+        }
+
+        #music-toggle:hover {
+            transform: scale(1.05);
+        }
+
+        #music-toggle:active {
+            transform: scale(0.95);
+        }
     </style>
 </head>
 <body>
     <div id="game-container">
-        <div id="score-board">找到的貓咪: <span id="cats-found">0</span> / <span id="total-cats">8</span></div>
+        <div id="score-board">
+            <div>找到的貓咪: <span id="cats-found">0</span> / <span id="total-cats">8</span></div>
+            <div id="timer">⏱️ 30</div>
+        </div>
+
+        <button id="music-toggle">🔊 音樂</button>
 
         <div id="christmas-tree">
             <div class="star">⭐</div>
-            <div class="tree-layer"></div>
-            <div class="tree-layer"></div>
-            <div class="tree-layer"></div>
+            <svg width="700" height="750" style="position: absolute; top: 0; left: 0;">
+                <defs>
+                    <linearGradient id="treeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" style="stop-color:#1a3a0d;stop-opacity:1" />
+                        <stop offset="50%" style="stop-color:#2d5016;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#1a3a0d;stop-opacity:1" />
+                    </linearGradient>
+                </defs>
+                <polygon points="350,80 280,180 320,180" fill="url(#treeGradient)" />
+                <polygon points="350,80 420,180 380,180" fill="url(#treeGradient)" />
+                <polygon points="350,150 260,280 310,280" fill="url(#treeGradient)" />
+                <polygon points="350,150 440,280 390,280" fill="url(#treeGradient)" />
+                <polygon points="350,220 240,380 300,380" fill="url(#treeGradient)" />
+                <polygon points="350,220 460,380 400,380" fill="url(#treeGradient)" />
+                <polygon points="350,110 200,320 230,320" fill="url(#treeGradient)" />
+                <polygon points="350,110 500,320 470,320" fill="url(#treeGradient)" />
+                <polygon points="350,200 180,420 220,420" fill="url(#treeGradient)" />
+                <polygon points="350,200 520,420 480,420" fill="url(#treeGradient)" />
+                <polygon points="350,280 170,520 210,520" fill="url(#treeGradient)" />
+                <polygon points="350,280 530,520 490,520" fill="url(#treeGradient)" />
+                <polygon points="200,480 500,480 480,620 220,620" fill="url(#treeGradient)" />
+            </svg>
             <div class="tree-trunk"></div>
         </div>
 
         <canvas id="fireworks-canvas"></canvas>
         <div id="completion-message">Merry X'mas! 🎄</div>
+        <div id="game-over-message">時間到！ ⏰</div>
     </div>
+
+    <audio id="bgMusic" loop>
+        <source src="data:audio/midi;base64,TVRoZAAAAAYAAQACBABNVHJrAAAAFAD/UQMHoSAA/1gEBAIYCID/LwBNVHJrAAABhgD/AwAA/1kCAACQPGSQQGSQQ2QAkDxkAJBAZACQQ2QAkDxkAJA/ZACQPGQAAJBBZACQP2QAkEFkAJA/ZACQPGQAAJA/ZACQPGQAAJBBZACQQmSQRWQAkD9kAJBCZACQRWQAkEJkAJBFZACQQmQAAJBGZACQRWQAkEZkAJBFZACQQmQAAJBFZACQQmQAAJBBZACQP2SQPGQAkEFkAJA/ZACQPGQAAJA/ZACQPGQAAJA9ZACQQGSQPWQAAJBEZACQQGQAkEJkAJBEZACQQGQAkD1kAJBAZACQPWQAAJA/ZACQPGQAAJA/ZACQPGQAAJA/ZACQPGQAAJA/ZACQPGQAAJA8ZACQP2QAAJA8ZACQP2QAAJA8ZACQP2QAAJA8ZACQP2QAAJA8ZACQP2QAAJA8ZACQP2QAAJA8ZACQP2QAID/LgA=" type="audio/midi">
+    </audio>
 
     <script>
         const totalCats = 8;
-        const totalLights = 20;
+        const totalLights = 30;
+        const gameTime = 30;
         let catsFound = 0;
         let activeCats = [];
+        let timeLeft = gameTime;
+        let gameActive = true;
+        let timerInterval = null;
 
         const tree = document.getElementById('christmas-tree');
         const catsFoundDisplay = document.getElementById('cats-found');
+        const timerDisplay = document.getElementById('timer');
         const completionMessage = document.getElementById('completion-message');
+        const gameOverMessage = document.getElementById('game-over-message');
         const fireworksCanvas = document.getElementById('fireworks-canvas');
         const ctx = fireworksCanvas.getContext('2d');
+        const bgMusic = document.getElementById('bgMusic');
+        const musicToggle = document.getElementById('music-toggle');
 
         fireworksCanvas.width = window.innerWidth;
         fireworksCanvas.height = window.innerHeight;
 
-        // Create snowflakes
+        const catEmojis = ['🐱', '😺', '😸', '😹', '😻', '😼', '😽', '🙀'];
+
+        let musicPlaying = false;
+        musicToggle.addEventListener('click', () => {
+            if (musicPlaying) {
+                bgMusic.pause();
+                musicToggle.textContent = '🔇 音樂';
+            } else {
+                bgMusic.play().catch(e => console.log('Audio play failed:', e));
+                musicToggle.textContent = '🔊 音樂';
+            }
+            musicPlaying = !musicPlaying;
+        });
+
+        bgMusic.play().catch(e => {
+            console.log('Autoplay prevented, user interaction required');
+        });
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                if (!gameActive) {
+                    clearInterval(timerInterval);
+                    return;
+                }
+
+                timeLeft--;
+                timerDisplay.textContent = `⏱️ ${timeLeft}`;
+
+                if (timeLeft <= 10) {
+                    timerDisplay.classList.add('warning');
+                }
+
+                if (timeLeft <= 0) {
+                    endGame(false);
+                }
+            }, 1000);
+        }
+
+        function endGame(won) {
+            gameActive = false;
+            clearInterval(timerInterval);
+
+            activeCats.forEach(cat => {
+                if (cat.parentElement) {
+                    cat.remove();
+                }
+            });
+            activeCats = [];
+
+            if (won) {
+                celebrateCompletion();
+            } else {
+                gameOverMessage.classList.add('show');
+                setTimeout(() => {
+                    location.reload();
+                }, 3000);
+            }
+        }
+
         function createSnowflakes() {
             for (let i = 0; i < 20; i++) {
                 const snowflake = document.createElement('div');
@@ -273,97 +462,119 @@
             }
         }
 
-        // Create Christmas lights
+        function isPointInTree(x, y) {
+            if (y < 80 || y > 620) return false;
+
+            const centerX = 350;
+            const relativeY = y - 80;
+
+            let maxWidth;
+            if (relativeY < 100) {
+                maxWidth = relativeY * 0.7;
+            } else if (relativeY < 200) {
+                maxWidth = 70 + (relativeY - 100) * 1.0;
+            } else if (relativeY < 400) {
+                maxWidth = 170 + (relativeY - 200) * 0.9;
+            } else {
+                maxWidth = 350 - (relativeY - 400) * 0.4;
+            }
+
+            const distance = Math.abs(x - centerX);
+            return distance < maxWidth;
+        }
+
+        function getRandomTreePosition() {
+            let x, y;
+            let attempts = 0;
+            do {
+                x = 180 + Math.random() * 340;
+                y = 100 + Math.random() * 500;
+                attempts++;
+            } while (!isPointInTree(x, y) && attempts < 50);
+
+            return { x, y };
+        }
+
         function createLights() {
-            const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff'];
+            const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
+
             for (let i = 0; i < totalLights; i++) {
                 const light = document.createElement('div');
                 light.className = 'light';
                 light.style.setProperty('--light-color', colors[i % colors.length]);
 
-                const angle = (i / totalLights) * Math.PI * 2;
-                const radius = 100 + (i % 3) * 80;
-                const x = 300 + Math.cos(angle) * radius;
-                const y = 250 + Math.sin(angle) * radius + (i % 3) * 100;
+                const pos = getRandomTreePosition();
+                light.style.left = pos.x + 'px';
+                light.style.top = pos.y + 'px';
 
-                light.style.left = x + 'px';
-                light.style.top = y + 'px';
                 tree.appendChild(light);
             }
         }
 
-        // Create ornaments
         function createOrnaments() {
-            const positions = [
-                {left: '45%', top: '25%'}, {left: '55%', top: '28%'},
-                {left: '35%', top: '40%'}, {left: '65%', top: '42%'},
-                {left: '30%', top: '55%'}, {left: '70%', top: '57%'},
-                {left: '25%', top: '70%'}, {left: '75%', top: '72%'}
-            ];
+            const colors = ['red', 'gold', 'blue', 'silver'];
+            const count = 20;
 
-            positions.forEach(pos => {
+            for (let i = 0; i < count; i++) {
                 const ornament = document.createElement('div');
-                ornament.className = 'ornament';
-                ornament.style.left = pos.left;
-                ornament.style.top = pos.top;
+                ornament.className = `ornament ${colors[i % colors.length]}`;
+
+                const pos = getRandomTreePosition();
+                ornament.style.left = pos.x + 'px';
+                ornament.style.top = pos.y + 'px';
+
                 tree.appendChild(ornament);
-            });
+            }
         }
 
-        // Spawn cat at random position
         function spawnCat() {
-            if (catsFound >= totalCats) return;
+            if (!gameActive || catsFound >= totalCats) return;
 
             const cat = document.createElement('div');
             cat.className = 'cat';
-            cat.textContent = '🐱';
+            cat.textContent = catEmojis[Math.floor(Math.random() * catEmojis.length)];
 
-            const x = Math.random() * 500 + 50;
-            const y = Math.random() * 550 + 100;
-
-            cat.style.left = x + 'px';
-            cat.style.top = y + 'px';
+            const pos = getRandomTreePosition();
+            cat.style.left = pos.x + 'px';
+            cat.style.top = pos.y + 'px';
 
             cat.addEventListener('click', function() {
-                if (!this.classList.contains('found')) {
-                    this.classList.add('found');
-                    catsFound++;
-                    catsFoundDisplay.textContent = catsFound;
+                if (!gameActive || this.classList.contains('found')) return;
 
-                    // Light up a random unlit light
-                    const unlitLights = document.querySelectorAll('.light:not(.lit)');
-                    if (unlitLights.length > 0) {
-                        const randomIndex = Math.floor(Math.random() * unlitLights.length);
-                        unlitLights[randomIndex].classList.add('lit');
-                    }
+                this.classList.add('found');
+                catsFound++;
+                catsFoundDisplay.textContent = catsFound;
 
-                    setTimeout(() => {
-                        cat.remove();
-                        activeCats = activeCats.filter(c => c !== cat);
-                    }, 500);
+                const unlitLights = document.querySelectorAll('.light:not(.lit)');
+                if (unlitLights.length > 0) {
+                    const randomIndex = Math.floor(Math.random() * unlitLights.length);
+                    unlitLights[randomIndex].classList.add('lit');
+                }
 
-                    if (catsFound >= totalCats) {
-                        setTimeout(celebrateCompletion, 500);
-                    } else {
-                        setTimeout(spawnCat, 1000);
-                    }
+                setTimeout(() => {
+                    cat.remove();
+                    activeCats = activeCats.filter(c => c !== cat);
+                }, 600);
+
+                if (catsFound >= totalCats) {
+                    setTimeout(() => endGame(true), 600);
+                } else {
+                    setTimeout(spawnCat, 800);
                 }
             });
 
             tree.appendChild(cat);
             activeCats.push(cat);
 
-            // Remove cat after 3 seconds if not clicked
             setTimeout(() => {
-                if (!cat.classList.contains('found') && cat.parentElement) {
+                if (!cat.classList.contains('found') && cat.parentElement && gameActive) {
                     cat.remove();
                     activeCats = activeCats.filter(c => c !== cat);
                     setTimeout(spawnCat, 500);
                 }
-            }, 3000);
+            }, 2500);
         }
 
-        // Fireworks
         class Firework {
             constructor(x, y) {
                 this.x = x;
@@ -371,9 +582,9 @@
                 this.particles = [];
                 this.color = `hsl(${Math.random() * 360}, 100%, 50%)`;
 
-                for (let i = 0; i < 30; i++) {
-                    const angle = (Math.PI * 2 * i) / 30;
-                    const velocity = 2 + Math.random() * 3;
+                for (let i = 0; i < 40; i++) {
+                    const angle = (Math.PI * 2 * i) / 40;
+                    const velocity = 2 + Math.random() * 4;
                     this.particles.push({
                         x: x,
                         y: y,
@@ -418,7 +629,7 @@
             ctx.fillStyle = 'rgba(10, 24, 40, 0.1)';
             ctx.fillRect(0, 0, fireworksCanvas.width, fireworksCanvas.height);
 
-            if (Math.random() < 0.1) {
+            if (Math.random() < 0.15) {
                 fireworks.push(new Firework(
                     Math.random() * fireworksCanvas.width,
                     Math.random() * fireworksCanvas.height * 0.5
@@ -437,31 +648,27 @@
         }
 
         function celebrateCompletion() {
-            // Light up all remaining lights
             document.querySelectorAll('.light').forEach(light => {
                 light.classList.add('lit');
             });
 
-            // Show fireworks
             fireworksCanvas.style.display = 'block';
             animateFireworks();
 
-            // Show completion message
             completionMessage.classList.add('show');
         }
 
-        // Initialize game
         createSnowflakes();
         createLights();
         createOrnaments();
+        startTimer();
 
-        // Start spawning cats
         setTimeout(spawnCat, 1000);
         setInterval(() => {
-            if (catsFound < totalCats && activeCats.length < 2) {
+            if (gameActive && catsFound < totalCats && activeCats.length < 3) {
                 spawnCat();
             }
-        }, 2000);
+        }, 1500);
     </script>
 </body>
 </html>
