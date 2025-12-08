@@ -347,69 +347,72 @@
             <div class="star">⭐</div>
             <svg width="700" height="750" style="position: absolute; top: 0; left: 0; z-index: 5;">
                 <defs>
-                    <radialGradient id="treeGradient1" cx="50%" cy="40%">
-                        <stop offset="0%" style="stop-color:#4a7c2c;stop-opacity:1" />
-                        <stop offset="50%" style="stop-color:#3d6923;stop-opacity:1" />
-                        <stop offset="100%" style="stop-color:#2d5016;stop-opacity:1" />
-                    </radialGradient>
-                    <radialGradient id="treeGradient2" cx="50%" cy="40%">
-                        <stop offset="0%" style="stop-color:#5a8c3c;stop-opacity:1" />
-                        <stop offset="50%" style="stop-color:#4a7c2c;stop-opacity:1" />
-                        <stop offset="100%" style="stop-color:#3d6923;stop-opacity:1" />
-                    </radialGradient>
-                    <radialGradient id="treeGradient3" cx="50%" cy="40%">
-                        <stop offset="0%" style="stop-color:#6a9c4c;stop-opacity:1" />
-                        <stop offset="50%" style="stop-color:#5a8c3c;stop-opacity:1" />
-                        <stop offset="100%" style="stop-color:#4a7c2c;stop-opacity:1" />
+                    <radialGradient id="treeGradient" cx="50%" cy="30%">
+                        <stop offset="0%" style="stop-color:#7fd1ae;stop-opacity:1" />
+                        <stop offset="40%" style="stop-color:#4db896;stop-opacity:1" />
+                        <stop offset="70%" style="stop-color:#3a9b7f;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#2d7d6b;stop-opacity:1" />
                     </radialGradient>
                     <filter id="treeShadow">
-                        <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
-                        <feOffset dx="2" dy="4" result="offsetblur"/>
+                        <feGaussianBlur in="SourceAlpha" stdDeviation="4"/>
+                        <feOffset dx="0" dy="6" result="offsetblur"/>
                         <feComponentTransfer>
-                            <feFuncA type="linear" slope="0.5"/>
+                            <feFuncA type="linear" slope="0.4"/>
                         </feComponentTransfer>
                         <feMerge>
                             <feMergeNode/>
                             <feMergeNode in="SourceGraphic"/>
                         </feMerge>
                     </filter>
+                    <linearGradient id="lightGlow" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:#fff9e6;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#ffd700;stop-opacity:0.8" />
+                    </linearGradient>
                 </defs>
 
-                <!-- Top tier -->
-                <ellipse cx="350" cy="95" rx="45" ry="15" fill="url(#treeGradient3)" opacity="0.6"/>
-                <path d="M 350 60 L 310 130 Q 350 115 390 130 Z" fill="url(#treeGradient3)" filter="url(#treeShadow)"/>
+                <!-- Main tree cone shape -->
+                <path d="M 350 50 L 180 580 L 520 580 Z" fill="url(#treeGradient)" filter="url(#treeShadow)"/>
 
-                <!-- Second tier -->
-                <ellipse cx="350" cy="165" rx="70" ry="20" fill="url(#treeGradient2)" opacity="0.6"/>
-                <path d="M 350 125 L 290 200 Q 350 180 410 200 Z" fill="url(#treeGradient2)" filter="url(#treeShadow)"/>
+                <!-- Texture overlay for depth -->
+                <path d="M 350 50 L 180 580 L 520 580 Z" fill="url(#treeGradient)" opacity="0.3"
+                      style="mix-blend-mode: overlay;"/>
 
-                <!-- Third tier -->
-                <ellipse cx="350" cy="245" rx="95" ry="25" fill="url(#treeGradient2)" opacity="0.6"/>
-                <path d="M 350 195 L 270 280 Q 350 255 430 280 Z" fill="url(#treeGradient2)" filter="url(#treeShadow)"/>
+                <!-- Decorative stars on tree -->
+                <g id="tree-stars">
+                    <circle cx="280" cy="200" r="15" fill="#fff" opacity="0.9"/>
+                    <circle cx="280" cy="200" r="12" fill="#ffeb3b"/>
+                    <text x="280" y="208" text-anchor="middle" font-size="20" fill="#fff">⭐</text>
 
-                <!-- Fourth tier -->
-                <ellipse cx="350" cy="340" rx="120" ry="30" fill="url(#treeGradient1)" opacity="0.6"/>
-                <path d="M 350 275 L 245 375 Q 350 340 455 375 Z" fill="url(#treeGradient1)" filter="url(#treeShadow)"/>
+                    <circle cx="420" cy="250" r="15" fill="#fff" opacity="0.9"/>
+                    <circle cx="420" cy="250" r="12" fill="#ff4081"/>
+                    <text x="420" y="258" text-anchor="middle" font-size="20" fill="#fff">⭐</text>
 
-                <!-- Fifth tier -->
-                <ellipse cx="350" cy="450" rx="145" ry="35" fill="url(#treeGradient1)" opacity="0.6"/>
-                <path d="M 350 365 L 220 485 Q 350 440 480 485 Z" fill="url(#treeGradient1)" filter="url(#treeShadow)"/>
+                    <circle cx="250" cy="360" r="15" fill="#fff" opacity="0.9"/>
+                    <circle cx="250" cy="360" r="12" fill="#00e5ff"/>
+                    <text x="250" y="368" text-anchor="middle" font-size="20" fill="#fff">⭐</text>
 
-                <!-- Bottom tier -->
-                <ellipse cx="350" cy="575" rx="170" ry="40" fill="url(#treeGradient1)" opacity="0.6"/>
-                <path d="M 350 470 L 195 600 Q 350 545 505 600 Z" fill="url(#treeGradient1)" filter="url(#treeShadow)"/>
+                    <circle cx="450" cy="400" r="15" fill="#fff" opacity="0.9"/>
+                    <circle cx="450" cy="400" r="12" fill="#ffeb3b"/>
+                    <text x="450" y="408" text-anchor="middle" font-size="20" fill="#fff">⭐</text>
 
-                <!-- Add some texture lines for depth -->
-                <path d="M 320 110 Q 330 120 340 115" stroke="#2d5016" stroke-width="2" fill="none" opacity="0.4"/>
-                <path d="M 365 140 Q 375 150 385 145" stroke="#2d5016" stroke-width="2" fill="none" opacity="0.4"/>
-                <path d="M 300 200 Q 310 215 320 210" stroke="#2d5016" stroke-width="2" fill="none" opacity="0.4"/>
-                <path d="M 380 225 Q 390 235 400 230" stroke="#2d5016" stroke-width="2" fill="none" opacity="0.4"/>
-                <path d="M 280 310 Q 295 325 310 318" stroke="#3d6923" stroke-width="2" fill="none" opacity="0.4"/>
-                <path d="M 390 330 Q 405 345 420 338" stroke="#3d6923" stroke-width="2" fill="none" opacity="0.4"/>
-                <path d="M 250 420 Q 270 440 290 430" stroke="#3d6923" stroke-width="2" fill="none" opacity="0.4"/>
-                <path d="M 410 445 Q 430 460 450 452" stroke="#3d6923" stroke-width="2" fill="none" opacity="0.4"/>
-                <path d="M 230 540 Q 255 560 280 550" stroke="#3d6923" stroke-width="3" fill="none" opacity="0.4"/>
-                <path d="M 420 555 Q 445 570 470 562" stroke="#3d6923" stroke-width="3" fill="none" opacity="0.4"/>
+                    <circle cx="300" cy="500" r="15" fill="#fff" opacity="0.9"/>
+                    <circle cx="300" cy="500" r="12" fill="#ff4081"/>
+                    <text x="300" y="508" text-anchor="middle" font-size="20" fill="#fff">⭐</text>
+                </g>
+
+                <!-- Light strings effect -->
+                <path d="M 200 150 Q 350 180 500 150" stroke="#ffd700" stroke-width="2" fill="none" opacity="0.7"/>
+                <path d="M 210 250 Q 350 280 490 250" stroke="#ffd700" stroke-width="2" fill="none" opacity="0.7"/>
+                <path d="M 220 350 Q 350 380 480 350" stroke="#ffd700" stroke-width="2" fill="none" opacity="0.7"/>
+                <path d="M 230 450 Q 350 480 470 450" stroke="#ffd700" stroke-width="2" fill="none" opacity="0.7"/>
+
+                <!-- Shimmer effect overlay -->
+                <ellipse cx="320" cy="150" rx="30" ry="40" fill="rgba(255,255,255,0.2)"
+                         style="mix-blend-mode: overlay;"/>
+                <ellipse cx="380" cy="300" rx="40" ry="50" fill="rgba(255,255,255,0.15)"
+                         style="mix-blend-mode: overlay;"/>
+                <ellipse cx="300" cy="450" rx="35" ry="45" fill="rgba(255,255,255,0.18)"
+                         style="mix-blend-mode: overlay;"/>
             </svg>
             <div class="tree-trunk"></div>
         </div>
@@ -518,52 +521,55 @@
             }
         }
 
+        // Musical notes frequencies (Do Re Mi Fa Sol La Si Do)
+        const musicalNotes = [
+            523.25, // Do (C5)
+            587.33, // Re (D5)
+            659.25, // Mi (E5)
+            698.46, // Fa (F5)
+            783.99, // Sol (G5)
+            880.00, // La (A5)
+            987.77, // Si (B5)
+            1046.50 // Do (C6)
+        ];
+
+        function playNote(noteIndex) {
+            if (noteIndex >= musicalNotes.length) return;
+
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            oscillator.frequency.value = musicalNotes[noteIndex];
+            oscillator.type = 'sine';
+
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.5);
+        }
+
         function isPointInTree(x, y) {
-            if (y < 60 || y > 600) return false;
+            if (y < 50 || y > 580) return false;
 
+            // Tree is a triangle from (350, 50) to (180, 580) to (520, 580)
             const centerX = 350;
-            const distance = Math.abs(x - centerX);
+            const topY = 50;
+            const bottomY = 580;
+            const leftX = 180;
+            const rightX = 520;
 
-            // Define tree tiers with curved boundaries
-            if (y >= 60 && y < 130) {
-                // Top tier
-                const tierCenter = 95;
-                const verticalDist = Math.abs(y - tierCenter);
-                const maxWidth = 45 - (verticalDist / 35) * 10;
-                return distance < maxWidth;
-            } else if (y >= 125 && y < 200) {
-                // Second tier
-                const tierCenter = 165;
-                const verticalDist = Math.abs(y - tierCenter);
-                const maxWidth = 70 - (verticalDist / 40) * 15;
-                return distance < maxWidth;
-            } else if (y >= 195 && y < 280) {
-                // Third tier
-                const tierCenter = 245;
-                const verticalDist = Math.abs(y - tierCenter);
-                const maxWidth = 95 - (verticalDist / 45) * 20;
-                return distance < maxWidth;
-            } else if (y >= 275 && y < 375) {
-                // Fourth tier
-                const tierCenter = 340;
-                const verticalDist = Math.abs(y - tierCenter);
-                const maxWidth = 120 - (verticalDist / 50) * 25;
-                return distance < maxWidth;
-            } else if (y >= 365 && y < 485) {
-                // Fifth tier
-                const tierCenter = 450;
-                const verticalDist = Math.abs(y - tierCenter);
-                const maxWidth = 145 - (verticalDist / 60) * 30;
-                return distance < maxWidth;
-            } else if (y >= 470 && y < 600) {
-                // Bottom tier
-                const tierCenter = 575;
-                const verticalDist = Math.abs(y - tierCenter);
-                const maxWidth = 170 - (verticalDist / 65) * 35;
-                return distance < maxWidth;
-            }
+            // Calculate the width of the tree at this y position
+            const progress = (y - topY) / (bottomY - topY);
+            const widthAtY = (rightX - leftX) * progress;
+            const leftBound = centerX - widthAtY / 2;
+            const rightBound = centerX + widthAtY / 2;
 
-            return false;
+            return x >= leftBound && x <= rightBound;
         }
 
         function getRandomTreePosition() {
@@ -627,6 +633,9 @@
                 this.classList.add('found');
                 catsFound++;
                 catsFoundDisplay.textContent = catsFound;
+
+                // Play musical note (Do Re Mi Fa Sol La Si Do)
+                playNote(catsFound - 1);
 
                 const unlitLights = document.querySelectorAll('.light:not(.lit)');
                 if (unlitLights.length > 0) {
