@@ -391,7 +391,8 @@
             </div>
             <div style="margin-top: 15px; display: flex; gap: 10px;">
                 <button class="btn btn-secondary" onclick="copyTranscript()">複製全文</button>
-                <button class="btn btn-secondary" onclick="downloadTranscript()">下載字幕</button>
+                <button class="btn btn-secondary" onclick="downloadTranscript('txt')">下載 TXT</button>
+                <button class="btn btn-secondary" onclick="downloadTranscript('srt')">下載 SRT</button>
             </div>
         </div>
 
@@ -749,11 +750,37 @@
                 return;
             }
 
+            // 獲取快照間隔設定
+            const interval = parseInt(document.getElementById('intervalInput').value) || 5;
+
+            // 計算影片總時長
+            const maxTime = transcript[transcript.length - 1].time + (transcript[transcript.length - 1].duration || 3);
+            const totalSegments = Math.ceil(maxTime / interval);
+
+            // 按照快照間隔分組字幕
+            const groupedTranscript = [];
+            for (let i = 0; i < totalSegments; i++) {
+                const segmentStart = i * interval;
+                const segmentEnd = (i + 1) * interval;
+
+                const segmentItems = transcript.filter(item =>
+                    item.time >= segmentStart && item.time < segmentEnd
+                );
+
+                if (segmentItems.length > 0) {
+                    groupedTranscript.push({
+                        time: segmentEnd, // 使用區間結束時間作為顯示時間
+                        texts: segmentItems.map(item => item.text)
+                    });
+                }
+            }
+
             let html = '<div>';
 
-            transcript.forEach((item, index) => {
-                const time = formatTime(item.time);
-                const snapshotImg = findSnapshotForTime(item.time);
+            groupedTranscript.forEach((segment, index) => {
+                const time = formatTime(segment.time);
+                const snapshotImg = findSnapshotForTime(segment.time);
+                const combinedText = segment.texts.join(' ');
 
                 html += `
                     <div style="display: flex; gap: 15px; margin-bottom: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px; align-items: flex-start;">
@@ -768,7 +795,7 @@
                         </div>
                         <div style="flex: 1; min-width: 0;">
                             <div style="color: #333; line-height: 1.6; padding: 5px 0;">
-                                ${item.text}
+                                ${combinedText}
                             </div>
                         </div>
                     </div>
@@ -778,8 +805,9 @@
             html += '</div>';
             html += `<div style="margin-top: 20px; padding: 15px; background: #e3f2fd; border-radius: 8px;">
                 <strong>📊 統計資訊：</strong><br>
-                字幕總數：${transcript.length} 段<br>
-                影片長度：約 ${formatTime(transcript[transcript.length - 1].time + transcript[transcript.length - 1].duration)}<br>
+                原始字幕：${transcript.length} 段<br>
+                聚合後：${groupedTranscript.length} 段（每 ${interval} 秒）<br>
+                影片長度：約 ${formatTime(maxTime)}<br>
                 可用截圖：${snapshots.length} 張
             </div>`;
 
@@ -826,23 +854,47 @@
             });
         }
 
-        function downloadTranscript() {
+        function downloadTranscript(format = 'txt') {
             if (!currentTranscript || currentTranscript.length === 0) {
                 alert('沒有可下載的字幕！');
                 return;
             }
 
-            const fullText = currentTranscript.map(item => {
-                return `[${formatTime(item.time)}] ${item.text}`;
-            }).join('\n\n');
+            let content, mimeType, extension;
 
-            const blob = new Blob([fullText], { type: 'text/plain' });
+            if (format === 'srt') {
+                // SRT 格式
+                content = currentTranscript.map((item, index) => {
+                    const startTime = formatSRTTime(item.time);
+                    const endTime = formatSRTTime(item.time + (item.duration || 3));
+                    return `${index + 1}\n${startTime} --> ${endTime}\n${item.text}\n`;
+                }).join('\n');
+                mimeType = 'text/plain';
+                extension = 'srt';
+            } else {
+                // TXT 格式
+                content = currentTranscript.map(item => {
+                    return `[${formatTime(item.time)}] ${item.text}`;
+                }).join('\n\n');
+                mimeType = 'text/plain';
+                extension = 'txt';
+            }
+
+            const blob = new Blob([content], { type: mimeType });
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
-            link.download = `youtube_transcript_${currentYouTubeId || 'unknown'}.txt`;
+            link.download = `youtube_transcript_${currentYouTubeId || 'unknown'}.${extension}`;
             link.click();
             URL.revokeObjectURL(url);
+        }
+
+        function formatSRTTime(seconds) {
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = Math.floor(seconds % 60);
+            const ms = Math.floor((seconds % 1) * 1000);
+            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')},${ms.toString().padStart(3, '0')}`;
         }
     </script>
 </body>
