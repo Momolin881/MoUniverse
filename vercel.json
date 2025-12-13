@@ -1,8 +1,12 @@
 {
   "functions": {
-    "api/**/*.js": {
+    "api/youtube-transcript.js": {
       "memory": 1024,
       "maxDuration": 10
+    },
+    "api/youtube-snapshot.js": {
+      "memory": 3008,
+      "maxDuration": 60
     }
   },
   "headers": [
