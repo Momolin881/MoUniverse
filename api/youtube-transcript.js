@@ -172,12 +172,14 @@ export default async function handler(req, res) {
 
     if (formattedTranscript.length === 0) {
       console.error('All regex patterns failed. XML structure might have changed.');
-      return res.status(404).json({
+      return res.status(500).json({
         success: false,
         error: '無法解析字幕內容',
         debug: {
+          captionUrl: captionUrl,
           xmlLength: captionXml.length,
-          xmlPreview: captionXml.substring(0, 200)
+          xmlPreview: captionXml.substring(0, 1000),
+          selectedLanguage: selectedTrack.languageCode
         }
       });
     }
