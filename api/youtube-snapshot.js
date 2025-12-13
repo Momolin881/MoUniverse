@@ -1,10 +1,3 @@
-import puppeteer from 'puppeteer-core';
-import chromium from '@sparticuz/chromium';
-
-export const config = {
-  maxDuration: 60, // 最長執行時間 60 秒
-};
-
 export default async function handler(req, res) {
   // Handle CORS
   if (req.method === 'OPTIONS') {
@@ -34,72 +27,55 @@ export default async function handler(req, res) {
     });
   }
 
-  let browser = null;
+  // Get API key from environment variable
+  const apiKey = process.env.SCREENSHOT_API_KEY;
+
+  if (!apiKey) {
+    return res.status(500).json({
+      success: false,
+      error: '未設定 SCREENSHOT_API_KEY 環境變數'
+    });
+  }
 
   try {
     console.log(`正在擷取快照：影片 ${videoId}，時間 ${time} 秒`);
 
-    // 啟動瀏覽器
-    browser = await puppeteer.launch({
-      args: chromium.args,
-      defaultViewport: chromium.defaultViewport,
-      executablePath: await chromium.executablePath(),
-      headless: chromium.headless,
+    // Construct YouTube URL with timestamp
+    const youtubeUrl = `https://www.youtube.com/watch?v=${videoId}&t=${Math.floor(time)}s`;
+
+    // ScreenshotOne API parameters
+    const screenshotParams = new URLSearchParams({
+      access_key: apiKey,
+      url: youtubeUrl,
+      viewport_width: '1280',
+      viewport_height: '720',
+      device_scale_factor: '1',
+      format: 'jpeg',
+      image_quality: '85',
+      block_ads: 'true',
+      block_cookie_banners: 'true',
+      block_banners_by_heuristics: 'false',
+      block_trackers: 'true',
+      delay: '3',
+      timeout: '30'
     });
 
-    const page = await browser.newPage();
+    const screenshotApiUrl = `https://api.screenshotone.com/take?${screenshotParams.toString()}`;
 
-    // 設定視窗大小（16:9 比例）
-    await page.setViewport({ width: 1280, height: 720 });
+    console.log('呼叫 ScreenshotOne API...');
 
-    // 打開 YouTube 影片（帶時間戳）
-    const videoUrl = `https://www.youtube.com/watch?v=${videoId}&t=${Math.floor(time)}s`;
-    console.log('打開 YouTube 頁面:', videoUrl);
+    // Fetch screenshot from ScreenshotOne
+    const response = await fetch(screenshotApiUrl);
 
-    await page.goto(videoUrl, {
-      waitUntil: 'networkidle0',
-      timeout: 30000
-    });
-
-    // 等待影片播放器載入
-    await page.waitForSelector('video', { timeout: 10000 });
-
-    // 點擊播放按鈕（如果需要）
-    try {
-      const playButton = await page.$('.ytp-large-play-button');
-      if (playButton) {
-        await playButton.click();
-        await page.waitForTimeout(2000); // 等待影片開始播放
-      }
-    } catch (e) {
-      console.log('無需點擊播放按鈕');
+    if (!response.ok) {
+      throw new Error(`ScreenshotOne API 回應錯誤: ${response.status} ${response.statusText}`);
     }
 
-    // 暫停影片
-    await page.evaluate(() => {
-      const video = document.querySelector('video');
-      if (video) {
-        video.pause();
-      }
-    });
+    // Get image as buffer
+    const imageBuffer = await response.arrayBuffer();
 
-    // 等待一下確保畫面穩定
-    await page.waitForTimeout(1000);
-
-    // 只擷取影片播放器區域
-    const videoElement = await page.$('video');
-    if (!videoElement) {
-      throw new Error('找不到影片元素');
-    }
-
-    // 擷取快照
-    const screenshot = await videoElement.screenshot({
-      type: 'jpeg',
-      quality: 85
-    });
-
-    // 轉換為 base64
-    const base64Image = screenshot.toString('base64');
+    // Convert to base64
+    const base64Image = Buffer.from(imageBuffer).toString('base64');
 
     console.log('快照擷取成功');
 
@@ -120,10 +96,5 @@ export default async function handler(req, res) {
       message: error.message,
       details: error.stack
     });
-
-  } finally {
-    if (browser) {
-      await browser.close();
-    }
   }
 }
