@@ -325,6 +325,17 @@
             <p style="font-size: 12px; color: #666; margin-top: 10px;">
                 ⚠️ 注意：僅支援直接影片檔案連結（如雲端空間分享連結），不支援 YouTube、Vimeo 等影音平台網址
             </p>
+
+            <div style="margin-top: 20px; padding-top: 20px; border-top: 2px dashed #ddd;">
+                <h3 style="margin-bottom: 15px;">🎬 YouTube 字幕擷取</h3>
+                <div class="url-input-group">
+                    <input type="text" class="url-input" id="youtubeUrl" placeholder="輸入 YouTube 影片網址...">
+                    <button class="btn btn-primary" onclick="fetchYouTubeTranscript()">取得字幕</button>
+                </div>
+                <p style="font-size: 12px; color: #666; margin-top: 10px;">
+                    📝 自動擷取 YouTube 自動生成的字幕（如果可用）
+                </p>
+            </div>
         </div>
 
         <!-- Settings Section -->
@@ -357,6 +368,18 @@
 
         <!-- Video Player -->
         <video id="video-player" controls></video>
+
+        <!-- Transcript Section -->
+        <div class="video-info" id="transcriptSection" style="display: none;">
+            <h3>📝 影片字幕</h3>
+            <div style="background: white; padding: 15px; border-radius: 8px; max-height: 400px; overflow-y: auto; margin-top: 15px;">
+                <div id="transcriptContent" style="line-height: 1.8; color: #333;"></div>
+            </div>
+            <div style="margin-top: 15px; display: flex; gap: 10px;">
+                <button class="btn btn-secondary" onclick="copyTranscript()">複製全文</button>
+                <button class="btn btn-secondary" onclick="downloadTranscript()">下載字幕</button>
+            </div>
+        </div>
 
         <!-- Video Info -->
         <div class="video-info" id="videoInfo">
@@ -403,6 +426,8 @@
         let ctx = canvas.getContext('2d');
         let snapshots = [];
         let currentVideoFile = null;
+        let currentTranscript = null;
+        let currentYouTubeId = null;
 
         // Upload area drag and drop
         const uploadArea = document.getElementById('uploadArea');
@@ -624,6 +649,128 @@
             if (bytes < 1024) return bytes + ' B';
             if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + ' KB';
             return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+        }
+
+        // YouTube Transcript Functions
+        async function fetchYouTubeTranscript() {
+            const youtubeUrl = document.getElementById('youtubeUrl').value.trim();
+
+            if (!youtubeUrl) {
+                alert('請輸入 YouTube 影片網址！');
+                return;
+            }
+
+            // Extract video ID from URL
+            const videoIdMatch = youtubeUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/);
+            if (!videoIdMatch) {
+                alert('無效的 YouTube 網址！\n\n請使用格式：\nhttps://www.youtube.com/watch?v=VIDEO_ID\n或\nhttps://youtu.be/VIDEO_ID');
+                return;
+            }
+
+            const videoId = videoIdMatch[1];
+            currentYouTubeId = videoId;
+
+            // Show loading
+            const transcriptContent = document.getElementById('transcriptContent');
+            transcriptContent.innerHTML = '<p style="text-align: center; color: #667eea;">⏳ 正在擷取字幕...</p>';
+            document.getElementById('transcriptSection').style.display = 'block';
+
+            try {
+                // Call serverless function
+                const response = await fetch(`/api/youtube-transcript?videoId=${videoId}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    currentTranscript = data.transcript;
+                    displayTranscript(data.transcript);
+                } else {
+                    throw new Error(data.error || '無法取得字幕');
+                }
+            } catch (error) {
+                transcriptContent.innerHTML = `
+                    <div style="color: #ff6b6b; text-align: center;">
+                        <p><strong>❌ 字幕擷取失敗</strong></p>
+                        <p style="font-size: 14px; margin-top: 10px;">${error.message}</p>
+                        <p style="font-size: 12px; color: #666; margin-top: 10px;">
+                            可能原因：<br>
+                            • 影片沒有字幕<br>
+                            • 影片 ID 錯誤<br>
+                            • 影片不公開<br>
+                            • 需要部署到 Vercel 才能使用此功能
+                        </p>
+                    </div>
+                `;
+            }
+        }
+
+        function displayTranscript(transcript) {
+            const transcriptContent = document.getElementById('transcriptContent');
+
+            if (!transcript || transcript.length === 0) {
+                transcriptContent.innerHTML = '<p style="color: #999;">沒有可用的字幕</p>';
+                return;
+            }
+
+            let html = '<div style="font-family: monospace;">';
+
+            transcript.forEach((item, index) => {
+                const time = formatTime(item.time);
+                html += `
+                    <div style="margin-bottom: 15px; padding: 10px; background: #f8f9fa; border-radius: 5px; border-left: 3px solid #667eea;">
+                        <div style="font-size: 12px; color: #667eea; font-weight: bold; margin-bottom: 5px;">
+                            ${time}
+                        </div>
+                        <div style="color: #333;">
+                            ${item.text}
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+            html += `<div style="margin-top: 20px; padding: 15px; background: #e3f2fd; border-radius: 8px;">
+                <strong>📊 統計資訊：</strong><br>
+                字幕總數：${transcript.length} 段<br>
+                影片長度：約 ${formatTime(transcript[transcript.length - 1].time + transcript[transcript.length - 1].duration)}
+            </div>`;
+
+            transcriptContent.innerHTML = html;
+        }
+
+        function copyTranscript() {
+            if (!currentTranscript || currentTranscript.length === 0) {
+                alert('沒有可複製的字幕！');
+                return;
+            }
+
+            const fullText = currentTranscript.map(item => {
+                return `[${formatTime(item.time)}] ${item.text}`;
+            }).join('\n\n');
+
+            navigator.clipboard.writeText(fullText).then(() => {
+                alert('✅ 字幕已複製到剪貼簿！');
+            }).catch(err => {
+                alert('❌ 複製失敗：' + err.message);
+            });
+        }
+
+        function downloadTranscript() {
+            if (!currentTranscript || currentTranscript.length === 0) {
+                alert('沒有可下載的字幕！');
+                return;
+            }
+
+            const fullText = currentTranscript.map(item => {
+                return `[${formatTime(item.time)}] ${item.text}`;
+            }).join('\n\n');
+
+            const blob = new Blob([fullText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `youtube_transcript_${currentYouTubeId || 'unknown'}.txt`;
+            link.click();
+            URL.revokeObjectURL(url);
         }
     </script>
 </body>

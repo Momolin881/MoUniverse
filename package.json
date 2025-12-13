@@ -1,0 +1,11 @@
+{
+  "name": "mouniverse",
+  "version": "1.0.0",
+  "description": "MoUniverse - Games and Tools Collection",
+  "type": "module",
+  "dependencies": {
+    "youtubei.js": "^10.5.0"
+  },
+  "devDependencies": {},
+  "scripts": {}
+}
