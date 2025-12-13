@@ -4,8 +4,12 @@
   "description": "MoUniverse - Games and Tools Collection",
   "type": "module",
   "dependencies": {
-    "youtubei.js": "^10.5.0"
+    "@ffmpeg/core": "^0.12.10",
+    "@ffmpeg/ffmpeg": "^0.12.15",
+    "@sparticuz/chromium": "^143.0.0",
+    "puppeteer-core": "^24.33.0",
+    "youtubei.js": "^10.5.0",
+    "ytdl-core": "^4.11.5"
   },
-  "devDependencies": {},
   "scripts": {}
 }

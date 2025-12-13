@@ -309,26 +309,19 @@
     <div class="container">
         <h1>📹 影片快照工具 Video Snapshot Tool</h1>
 
-        <!-- Step 1: Upload Section -->
+        <!-- Step 1: YouTube Input Section -->
         <div class="upload-section">
-            <h2 style="color: #667eea; margin-bottom: 20px;">步驟 1️⃣：選擇影片來源</h2>
-
-            <div class="upload-area" id="uploadArea">
-                <div class="upload-icon">📁</div>
-                <h3>上傳本地影片檔案</h3>
-                <p>支援格式: MP4, MOV, AVI (最大 100MB)</p>
-                <input type="file" id="fileInput" accept="video/mp4,video/quicktime,video/x-msvideo">
-            </div>
-
-            <div style="text-align: center; margin: 15px 0; color: #999; font-weight: bold;">或</div>
+            <h2 style="color: #667eea; margin-bottom: 20px;">步驟 1️⃣：輸入 YouTube 影片網址</h2>
 
             <div>
-                <h3 style="margin-bottom: 15px; color: #667eea;">🎬 輸入 YouTube 網址</h3>
                 <div class="url-input-group">
-                    <input type="text" class="url-input" id="youtubeUrl" placeholder="輸入 YouTube 影片網址...">
+                    <input type="text" class="url-input" id="youtubeUrl" placeholder="輸入 YouTube 影片網址，例如：https://www.youtube.com/watch?v=...">
                 </div>
-                <p style="font-size: 12px; color: #666; margin-top: 10px;">
-                    📝 將自動擷取 YouTube 字幕和影片資訊
+                <p style="font-size: 14px; color: #667eea; margin-top: 15px; background: #e3f2fd; padding: 15px; border-radius: 8px;">
+                    <strong>🎬 功能說明：</strong><br>
+                    • 自動擷取 YouTube 影片字幕<br>
+                    • 根據設定的時間間隔擷取影片快照<br>
+                    • 字幕與快照完美對應顯示
                 </p>
             </div>
         </div>
@@ -681,13 +674,88 @@
             if (youtubeUrl) {
                 // YouTube workflow
                 await fetchYouTubeTranscript();
-                // Note: YouTube videos cannot be captured directly, only transcript
+                // Capture YouTube snapshots using Puppeteer
+                await captureYouTubeSnapshots();
             } else if (currentVideoFile || videoElement.src) {
                 // Local video workflow
                 await startCapture();
             } else {
                 alert('請先上傳影片檔案或輸入 YouTube 網址！');
             }
+        }
+
+        // Capture YouTube video snapshots using Puppeteer API
+        async function captureYouTubeSnapshots() {
+            if (!currentYouTubeId || !currentTranscript) {
+                console.log('沒有 YouTube 字幕，跳過快照擷取');
+                return;
+            }
+
+            const interval = parseInt(document.getElementById('intervalInput').value) || 5;
+            const maxTime = currentTranscript[currentTranscript.length - 1].time +
+                           (currentTranscript[currentTranscript.length - 1].duration || 3);
+            const totalSnapshots = Math.ceil(maxTime / interval);
+
+            // Clear previous snapshots
+            snapshots = [];
+            document.getElementById('snapshotsGrid').innerHTML = '';
+            document.getElementById('snapshotsSection').classList.add('show');
+
+            // Show progress bar
+            document.getElementById('progressBar').classList.add('show');
+            document.getElementById('progressFill').style.width = '0%';
+            document.getElementById('progressFill').textContent = '擷取中... 0%';
+
+            console.log(`開始擷取 ${totalSnapshots} 張快照...`);
+
+            // Capture snapshots sequentially
+            for (let i = 0; i < totalSnapshots; i++) {
+                const time = (i + 1) * interval;
+
+                try {
+                    console.log(`擷取第 ${i + 1}/${totalSnapshots} 張快照 (${time}秒)`);
+
+                    // Call Puppeteer API
+                    const response = await fetch(`/api/youtube-snapshot?videoId=${currentYouTubeId}&time=${time}`);
+                    const data = await response.json();
+
+                    if (data.success) {
+                        const snapshot = {
+                            time: time,
+                            dataUrl: data.image,
+                            format: 'jpeg'
+                        };
+
+                        snapshots.push(snapshot);
+                        addSnapshotToGrid(snapshot);
+                        updateSnapshotCount();
+
+                        // Update progress
+                        const progress = Math.round(((i + 1) / totalSnapshots) * 100);
+                        document.getElementById('progressFill').style.width = progress + '%';
+                        document.getElementById('progressFill').textContent = `擷取中... ${progress}%`;
+
+                        // Update transcript display with new snapshot
+                        displayTranscript(currentTranscript);
+                    } else {
+                        console.error(`擷取快照失敗 (${time}秒):`, data.error);
+                    }
+                } catch (error) {
+                    console.error(`擷取快照錯誤 (${time}秒):`, error);
+                }
+
+                // Small delay between requests to avoid overwhelming the server
+                if (i < totalSnapshots - 1) {
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                }
+            }
+
+            // Hide progress bar after completion
+            setTimeout(() => {
+                document.getElementById('progressBar').classList.remove('show');
+            }, 1000);
+
+            console.log('所有快照擷取完成！');
         }
 
         // YouTube Transcript Functions
