@@ -337,31 +337,46 @@
         <div class="settings-section" style="background: #f8f9fa; padding: 30px; border-radius: 15px; margin-bottom: 30px;">
             <h2 style="color: #667eea; margin-bottom: 20px;">步驟 2️⃣：設定快照參數並開始</h2>
 
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px;">
-                <div class="setting-group">
-                    <label>快照間隔（秒）</label>
-                    <input type="number" id="intervalInput" value="5" min="1" step="1">
-                </div>
+            <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 20px;">
+                <div style="display: flex; gap: 20px; flex: 1;">
+                    <div class="setting-group" style="margin: 0;">
+                        <label>快照間隔（秒）</label>
+                        <select id="intervalInput" style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; cursor: pointer;">
+                            <option value="5">5 秒</option>
+                            <option value="10">10 秒</option>
+                            <option value="15">15 秒</option>
+                            <option value="20">20 秒</option>
+                            <option value="25">25 秒</option>
+                            <option value="30">30 秒</option>
+                            <option value="35">35 秒</option>
+                            <option value="40">40 秒</option>
+                            <option value="45">45 秒</option>
+                            <option value="50">50 秒</option>
+                            <option value="55">55 秒</option>
+                            <option value="60">60 秒</option>
+                        </select>
+                    </div>
 
-                <div class="setting-group">
-                    <label>快照格式</label>
-                    <div class="radio-group">
-                        <label>
-                            <input type="radio" name="format" value="png" checked>
-                            PNG
-                        </label>
-                        <label>
-                            <input type="radio" name="format" value="jpeg">
-                            JPG
-                        </label>
+                    <div class="setting-group" style="margin: 0;">
+                        <label>快照格式</label>
+                        <div class="radio-group">
+                            <label>
+                                <input type="radio" name="format" value="png" checked>
+                                PNG
+                            </label>
+                            <label>
+                                <input type="radio" name="format" value="jpeg">
+                                JPG
+                            </label>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div style="text-align: center;">
-                <button class="btn btn-primary" onclick="startProcess()" id="startBtn" disabled style="font-size: 18px; padding: 15px 40px;">
-                    🚀 取得字幕並擷取快照
-                </button>
+                <div>
+                    <button class="btn btn-primary" onclick="startProcess()" id="startBtn" disabled style="font-size: 18px; padding: 15px 40px; white-space: nowrap;">
+                        🚀 取得字幕並擷取快照
+                    </button>
+                </div>
             </div>
         </div>
 
