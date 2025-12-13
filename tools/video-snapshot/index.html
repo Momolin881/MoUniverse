@@ -433,104 +433,14 @@
         let canvas = document.getElementById('canvas');
         let ctx = canvas.getContext('2d');
         let snapshots = [];
-        let currentVideoFile = null;
         let currentTranscript = null;
         let currentYouTubeId = null;
-
-        // Upload area drag and drop
-        const uploadArea = document.getElementById('uploadArea');
-        const fileInput = document.getElementById('fileInput');
-
-        uploadArea.addEventListener('click', () => fileInput.click());
-
-        uploadArea.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadArea.classList.add('dragover');
-        });
-
-        uploadArea.addEventListener('dragleave', () => {
-            uploadArea.classList.remove('dragover');
-        });
-
-        uploadArea.addEventListener('drop', (e) => {
-            e.preventDefault();
-            uploadArea.classList.remove('dragover');
-            const files = e.dataTransfer.files;
-            if (files.length > 0) {
-                handleFile(files[0]);
-            }
-        });
-
-        fileInput.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                handleFile(e.target.files[0]);
-            }
-        });
 
         // Enable start button when YouTube URL is entered
         document.getElementById('youtubeUrl').addEventListener('input', (e) => {
             const hasYouTubeUrl = e.target.value.trim().length > 0;
-            document.getElementById('startBtn').disabled = !hasYouTubeUrl && !currentVideoFile;
+            document.getElementById('startBtn').disabled = !hasYouTubeUrl;
         });
-
-        function handleFile(file) {
-            // Check file size (100MB)
-            if (file.size > 100 * 1024 * 1024) {
-                alert('檔案大小超過 100MB 限制！');
-                return;
-            }
-
-            // Check file type
-            const validTypes = ['video/mp4', 'video/quicktime', 'video/x-msvideo'];
-            if (!validTypes.includes(file.type)) {
-                alert('不支援的影片格式！請使用 MP4, MOV 或 AVI。');
-                return;
-            }
-
-            currentVideoFile = file;
-            const url = URL.createObjectURL(file);
-            loadVideo(url, file.size);
-
-            // Enable start button
-            document.getElementById('startBtn').disabled = false;
-        }
-
-        function loadFromUrl() {
-            const url = document.getElementById('videoUrl').value.trim();
-            if (!url) {
-                alert('請輸入影片 URL');
-                return;
-            }
-            loadVideo(url, 0);
-        }
-
-        function loadVideo(url, fileSize) {
-            videoElement.src = url;
-            videoElement.style.display = 'block';
-
-            videoElement.onloadedmetadata = () => {
-                const duration = videoElement.duration;
-                const width = videoElement.videoWidth;
-                const height = videoElement.videoHeight;
-
-                // Update video info
-                document.getElementById('videoDuration').textContent = formatTime(duration);
-                document.getElementById('videoResolution').textContent = `${width}x${height}`;
-                document.getElementById('videoSize').textContent = fileSize > 0 ? formatFileSize(fileSize) : 'N/A';
-                document.getElementById('videoInfo').classList.add('show');
-
-
-                // Clear previous snapshots
-                clearSnapshots();
-            };
-
-            videoElement.onerror = () => {
-                alert('影片載入失敗！\n\n可能原因：\n1. 網址不正確\n2. 影片格式不支援\n3. 該網站不允許外部存取（CORS 限制）\n4. YouTube 等平台網址無法使用\n\n建議：請使用直接影片檔案連結或改用本地上傳');
-                videoElement.style.display = 'none';
-                document.getElementById('videoInfo').classList.remove('show');
-                document.getElementById('startBtn').disabled = true;
-            };
-        }
 
         async function startCapture() {
             const interval = parseInt(document.getElementById('intervalInput').value);
@@ -670,18 +580,15 @@
         async function startProcess() {
             const youtubeUrl = document.getElementById('youtubeUrl').value.trim();
 
-            // Check if YouTube URL or local file
-            if (youtubeUrl) {
-                // YouTube workflow
-                await fetchYouTubeTranscript();
-                // Capture YouTube snapshots using Puppeteer
-                await captureYouTubeSnapshots();
-            } else if (currentVideoFile || videoElement.src) {
-                // Local video workflow
-                await startCapture();
-            } else {
-                alert('請先上傳影片檔案或輸入 YouTube 網址！');
+            if (!youtubeUrl) {
+                alert('請輸入 YouTube 影片網址！');
+                return;
             }
+
+            // YouTube workflow
+            await fetchYouTubeTranscript();
+            // Capture YouTube snapshots using Puppeteer
+            await captureYouTubeSnapshots();
         }
 
         // Capture YouTube video snapshots using Puppeteer API
