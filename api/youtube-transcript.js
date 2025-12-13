@@ -75,15 +75,24 @@ export default async function handler(req, res) {
 
     // Step 4: Fetch caption data
     const captionUrl = selectedTrack.baseUrl;
+    console.log('Fetching captions from:', captionUrl);
     const captionResponse = await fetch(captionUrl);
     const captionXml = await captionResponse.text();
+    console.log('Caption XML length:', captionXml.length);
+    console.log('Caption XML preview:', captionXml.substring(0, 500));
 
     // Step 5: Parse XML to extract captions
-    const textRegex = /<text start="([\d.]+)" dur="([\d.]+)"[^>]*>(.*?)<\/text>/g;
+    // Try multiple regex patterns for different XML formats
+    const textRegex1 = /<text start="([\d.]+)" dur="([\d.]+)"[^>]*>(.*?)<\/text>/gs;
+    const textRegex2 = /<text[^>]*start="([\d.]+)"[^>]*dur="([\d.]+)"[^>]*>(.*?)<\/text>/gs;
+    const textRegex3 = /<text[^>]*t="(\d+)"[^>]*d="(\d+)"[^>]*>(.*?)<\/text>/gs;
+
     const formattedTranscript = [];
     let match2;
+    let regexToUse = textRegex1;
 
-    while ((match2 = textRegex.exec(captionXml)) !== null) {
+    // Try first regex pattern
+    while ((match2 = regexToUse.exec(captionXml)) !== null) {
       const startTime = parseFloat(match2[1]);
       const duration = parseFloat(match2[2]);
       let text = match2[3];
@@ -107,10 +116,69 @@ export default async function handler(req, res) {
       }
     }
 
+    // If first regex didn't work, try alternative patterns
     if (formattedTranscript.length === 0) {
+      console.log('First regex failed, trying alternative patterns...');
+
+      // Try second pattern
+      regexToUse = textRegex2;
+      while ((match2 = regexToUse.exec(captionXml)) !== null) {
+        const startTime = parseFloat(match2[1]);
+        const duration = parseFloat(match2[2]);
+        let text = match2[3]
+          .replace(/&amp;/g, '&')
+          .replace(/&lt;/g, '<')
+          .replace(/&gt;/g, '>')
+          .replace(/&quot;/g, '"')
+          .replace(/&#39;/g, "'")
+          .replace(/<[^>]*>/g, '')
+          .trim();
+
+        if (text) {
+          formattedTranscript.push({
+            time: Math.round(startTime),
+            text: text,
+            duration: Math.round(duration)
+          });
+        }
+      }
+    }
+
+    // Try third pattern (YouTube's newer format with t= and d=)
+    if (formattedTranscript.length === 0) {
+      console.log('Second regex failed, trying millisecond format...');
+      regexToUse = textRegex3;
+      while ((match2 = regexToUse.exec(captionXml)) !== null) {
+        const startTime = parseInt(match2[1]) / 1000; // Convert from ms to seconds
+        const duration = parseInt(match2[2]) / 1000;
+        let text = match2[3]
+          .replace(/&amp;/g, '&')
+          .replace(/&lt;/g, '<')
+          .replace(/&gt;/g, '>')
+          .replace(/&quot;/g, '"')
+          .replace(/&#39;/g, "'")
+          .replace(/<[^>]*>/g, '')
+          .trim();
+
+        if (text) {
+          formattedTranscript.push({
+            time: Math.round(startTime),
+            text: text,
+            duration: Math.round(duration)
+          });
+        }
+      }
+    }
+
+    if (formattedTranscript.length === 0) {
+      console.error('All regex patterns failed. XML structure might have changed.');
       return res.status(404).json({
         success: false,
-        error: '無法解析字幕內容'
+        error: '無法解析字幕內容',
+        debug: {
+          xmlLength: captionXml.length,
+          xmlPreview: captionXml.substring(0, 200)
+        }
       });
     }
 
