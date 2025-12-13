@@ -294,14 +294,6 @@
             text-shadow: 0 0 10px rgba(0, 245, 255, 0.3);
         }
 
-        #video-player {
-            display: none;
-            width: 100%;
-            max-width: 800px;
-            margin: 0 auto 30px;
-            border-radius: 10px;
-        }
-
         .snapshots-section {
             display: none;
         }
@@ -409,10 +401,6 @@
         .hidden {
             display: none;
         }
-
-        canvas {
-            display: none;
-        }
     </style>
 </head>
 <body>
@@ -488,9 +476,6 @@
             <div class="progress-fill" id="progressFill">0%</div>
         </div>
 
-        <!-- Video Player -->
-        <video id="video-player" controls></video>
-
         <!-- Transcript Section -->
         <div class="video-info" id="transcriptSection" style="display: none;">
             <h3>📝 影片字幕</h3>
@@ -534,14 +519,9 @@
             </div>
             <div class="snapshots-grid" id="snapshotsGrid"></div>
         </div>
-
-        <canvas id="canvas"></canvas>
     </div>
 
     <script>
-        let videoElement = document.getElementById('video-player');
-        let canvas = document.getElementById('canvas');
-        let ctx = canvas.getContext('2d');
         let snapshots = [];
         let currentTranscript = null;
         let currentYouTubeId = null;
@@ -551,70 +531,6 @@
             const hasYouTubeUrl = e.target.value.trim().length > 0;
             document.getElementById('startBtn').disabled = !hasYouTubeUrl;
         });
-
-        async function startCapture() {
-            const interval = parseInt(document.getElementById('intervalInput').value);
-            const format = document.querySelector('input[name="format"]:checked').value;
-            const duration = videoElement.duration;
-            const totalSnapshots = Math.floor(duration / interval) + 1;
-
-            if (!videoElement.src) {
-                alert('請先上傳影片！');
-                return;
-            }
-
-            // Clear previous snapshots
-            snapshots = [];
-            document.getElementById('snapshotsGrid').innerHTML = '';
-            document.getElementById('snapshotsSection').classList.add('show');
-
-            // Show progress bar
-            document.getElementById('progressBar').classList.add('show');
-            document.getElementById('progressFill').style.width = '0%';
-            document.getElementById('progressFill').textContent = '0%';
-
-            // Capture snapshots
-            for (let i = 0; i < totalSnapshots; i++) {
-                const time = i * interval;
-                if (time <= duration) {
-                    await captureFrame(time, format);
-                    const progress = Math.round(((i + 1) / totalSnapshots) * 100);
-                    document.getElementById('progressFill').style.width = progress + '%';
-                    document.getElementById('progressFill').textContent = progress + '%';
-                }
-            }
-
-            // Hide progress bar after completion
-            setTimeout(() => {
-                document.getElementById('progressBar').classList.remove('show');
-            }, 1000);
-        }
-
-        function captureFrame(time, format) {
-            return new Promise((resolve) => {
-                videoElement.currentTime = time;
-                videoElement.onseeked = () => {
-                    canvas.width = videoElement.videoWidth;
-                    canvas.height = videoElement.videoHeight;
-                    ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
-
-                    const mimeType = format === 'png' ? 'image/png' : 'image/jpeg';
-                    const dataUrl = canvas.toDataURL(mimeType, 0.9);
-
-                    const snapshot = {
-                        time: time,
-                        dataUrl: dataUrl,
-                        format: format
-                    };
-
-                    snapshots.push(snapshot);
-                    addSnapshotToGrid(snapshot);
-                    updateSnapshotCount();
-
-                    resolve();
-                };
-            });
-        }
 
         function addSnapshotToGrid(snapshot) {
             const grid = document.getElementById('snapshotsGrid');
