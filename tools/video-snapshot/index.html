@@ -688,17 +688,26 @@
 
         // Main Process Function
         async function startProcess() {
+            console.log('startProcess called');
             const youtubeUrl = document.getElementById('youtubeUrl').value.trim();
+            console.log('YouTube URL:', youtubeUrl);
 
             if (!youtubeUrl) {
                 alert('請輸入 YouTube 影片網址！');
                 return;
             }
 
-            // YouTube workflow
-            await fetchYouTubeTranscript();
-            // Capture YouTube snapshots using Puppeteer
-            await captureYouTubeSnapshots();
+            try {
+                // YouTube workflow
+                console.log('Calling fetchYouTubeTranscript...');
+                await fetchYouTubeTranscript();
+                // Capture YouTube snapshots using Puppeteer
+                console.log('Calling captureYouTubeSnapshots...');
+                await captureYouTubeSnapshots();
+            } catch (error) {
+                console.error('Error in startProcess:', error);
+                alert('發生錯誤：' + error.message);
+            }
         }
 
         // Capture YouTube video snapshots using Puppeteer API
