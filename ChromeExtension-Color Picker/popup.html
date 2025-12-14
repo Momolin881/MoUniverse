@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Color Picker</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo">
+        <span class="icon">🎨</span>
+        <h1>Color Picker</h1>
+      </div>
+      <button id="pickBtn" class="pick-button">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+          <path d="M13.354 1.646a.5.5 0 0 1 0 .708l-11 11a.5.5 0 0 1-.708-.708l11-11a.5.5 0 0 1 .708 0z"/>
+          <path d="M13.5 2.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+        </svg>
+        Pick
+      </button>
+    </header>
+
+    <section class="selected-color-section">
+      <h2>Selected Color</h2>
+
+      <div class="color-preview-area">
+        <canvas id="colorCanvas" width="380" height="200"></canvas>
+        <div id="colorSelector" class="color-selector"></div>
+      </div>
+
+      <div class="hue-slider-container">
+        <input type="range" id="hueSlider" min="0" max="360" value="210" class="hue-slider">
+        <div id="hueSelector" class="hue-selector"></div>
+      </div>
+
+      <div class="color-format-section">
+        <div class="format-buttons">
+          <button id="hexBtn" class="format-btn active">HEX</button>
+          <button id="rgbBtn" class="format-btn">RGB</button>
+        </div>
+
+        <div class="color-code-display">
+          <input type="text" id="colorCode" value="#AABBCC" readonly>
+          <button id="copyBtn" class="copy-button">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H6zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1H2z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="recent-colors-section">
+      <h3>Recent</h3>
+      <div id="recentColors" class="recent-colors">
+        <!-- Recent colors will be added here dynamically -->
+      </div>
+    </section>
+
+    <footer>
+      <a href="#" id="rateLink">Rate us</a>
+      <span>|</span>
+      <a href="#" id="feedbackLink">feedback</a>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
