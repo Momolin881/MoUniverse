@@ -449,6 +449,12 @@
                     </div>
 
                     <div class="setting-group" style="margin: 0; flex: 1; min-width: 200px;">
+                        <label>影片長度（分鐘，選填）</label>
+                        <input type="number" id="durationInput" min="1" max="180" placeholder="自動偵測或手動輸入" style="width: 100%; padding: 10px; border: 2px solid #b967ff; border-radius: 8px; font-size: 16px; background: rgba(0, 0, 0, 0.5); color: #00f5ff; box-shadow: 0 0 10px rgba(185, 103, 255, 0.3);">
+                        <small style="color: #b967ff; font-size: 11px; margin-top: 5px; display: block;">若無字幕需手動輸入</small>
+                    </div>
+
+                    <div class="setting-group" style="margin: 0; flex: 1; min-width: 200px;">
                         <label>快照格式</label>
                         <div class="radio-group">
                             <label>
@@ -613,11 +619,38 @@
                 return;
             }
 
+            // Extract video ID from URL
+            const videoIdMatch = youtubeUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/);
+            if (!videoIdMatch) {
+                alert('無效的 YouTube 網址！');
+                return;
+            }
+            currentYouTubeId = videoIdMatch[1];
+
+            let subtitleSuccess = false;
+
             try {
-                // YouTube workflow
+                // Try to fetch YouTube subtitles (optional, continues even if fails)
                 console.log('Calling fetchYouTubeTranscript...');
-                await fetchYouTubeTranscript();
-                // Capture YouTube snapshots using Puppeteer
+                try {
+                    await fetchYouTubeTranscript();
+                    subtitleSuccess = true;
+                    console.log('✅ 字幕擷取成功');
+                } catch (error) {
+                    console.warn('⚠️ 字幕擷取失敗，但將繼續擷取快照:', error.message);
+                    // Show error message in transcript section but continue
+                    const transcriptContent = document.getElementById('transcriptContent');
+                    transcriptContent.innerHTML = `
+                        <div style="color: #ff006e; text-align: center; padding: 20px;">
+                            <p><strong style="text-shadow: 0 0 10px rgba(255, 0, 110, 0.5);">⚠️ 字幕擷取失敗</strong></p>
+                            <p style="font-size: 14px; margin-top: 10px; color: #00f5ff;">${error.message}</p>
+                            <p style="font-size: 14px; color: #b967ff; margin-top: 15px;">將繼續擷取影片快照...</p>
+                        </div>
+                    `;
+                    document.getElementById('transcriptSection').style.display = 'block';
+                }
+
+                // Capture YouTube snapshots using ScreenshotOne API (continues even without subtitles)
                 console.log('Calling captureYouTubeSnapshots...');
                 await captureYouTubeSnapshots();
             } catch (error) {
@@ -626,16 +659,36 @@
             }
         }
 
-        // Capture YouTube video snapshots using Puppeteer API
+        // Capture YouTube video snapshots using ScreenshotOne API
         async function captureYouTubeSnapshots() {
-            if (!currentYouTubeId || !currentTranscript) {
-                console.log('沒有 YouTube 字幕，跳過快照擷取');
+            if (!currentYouTubeId) {
+                console.log('沒有 YouTube ID，跳過快照擷取');
                 return;
             }
 
             const interval = parseInt(document.getElementById('intervalInput').value) || 5;
-            const maxTime = currentTranscript[currentTranscript.length - 1].time +
-                           (currentTranscript[currentTranscript.length - 1].duration || 3);
+
+            // Determine video duration from multiple sources
+            let maxTime;
+            if (currentTranscript && currentTranscript.length > 0) {
+                // Use transcript to determine duration
+                maxTime = currentTranscript[currentTranscript.length - 1].time +
+                         (currentTranscript[currentTranscript.length - 1].duration || 3);
+                console.log(`使用字幕偵測到影片長度: ${Math.floor(maxTime / 60)} 分 ${Math.floor(maxTime % 60)} 秒`);
+            } else {
+                // Use manual input or default
+                const manualDuration = parseInt(document.getElementById('durationInput').value);
+                if (manualDuration && manualDuration > 0) {
+                    maxTime = manualDuration * 60; // Convert minutes to seconds
+                    console.log(`使用手動輸入的影片長度: ${manualDuration} 分鐘`);
+                } else {
+                    // Default to 5 minutes if no input
+                    maxTime = 5 * 60;
+                    console.log('未輸入影片長度，預設為 5 分鐘');
+                    alert('⚠️ 未偵測到字幕且未輸入影片長度\n將預設擷取 5 分鐘的快照\n\n建議：請在「影片長度」欄位輸入實際長度（分鐘）');
+                }
+            }
+
             const totalSnapshots = Math.ceil(maxTime / interval);
 
             // Clear previous snapshots
@@ -754,6 +807,42 @@
 
         function displayTranscript(transcript) {
             const transcriptContent = document.getElementById('transcriptContent');
+
+            // If we have snapshots but no transcript, show snapshots only
+            if ((!transcript || transcript.length === 0) && snapshots.length > 0) {
+                const interval = parseInt(document.getElementById('intervalInput').value) || 5;
+                let html = '<div style="color: #b967ff; text-align: center; margin-bottom: 20px; padding: 15px; background: rgba(185, 103, 255, 0.1); border-radius: 8px;">';
+                html += '<p><strong>📸 僅顯示快照（無字幕）</strong></p>';
+                html += '</div><div>';
+
+                snapshots.forEach((snapshot, index) => {
+                    const time = formatTime(snapshot.time);
+                    html += `
+                        <div style="display: flex; gap: 15px; margin-bottom: 15px; padding: 15px; background: rgba(0, 0, 0, 0.4); border-radius: 8px; align-items: center; border: 1px solid rgba(0, 245, 255, 0.2); box-shadow: 0 0 10px rgba(0, 245, 255, 0.1);">
+                            <div style="flex-shrink: 0; width: 200px;">
+                                <img src="${snapshot.dataUrl}" style="width: 100%; height: auto; border-radius: 5px; box-shadow: 0 0 15px rgba(255, 0, 110, 0.3), 0 2px 8px rgba(0,0,0,0.3); border: 1px solid rgba(255, 0, 110, 0.3);" alt="Snapshot at ${time}">
+                                <div style="font-size: 11px; color: #00f5ff; font-weight: bold; margin-top: 5px; text-align: center; text-shadow: 0 0 5px rgba(0, 245, 255, 0.5);">
+                                    ${time}
+                                </div>
+                            </div>
+                            <div style="flex: 1; min-width: 0; color: #b967ff; text-align: center;">
+                                <p>（無字幕資料）</p>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                html += '</div>';
+                html += `<div style="margin-top: 20px; padding: 15px; background: rgba(0, 0, 0, 0.5); border-radius: 8px; border: 1px solid rgba(185, 103, 255, 0.3); box-shadow: 0 0 15px rgba(185, 103, 255, 0.2);">
+                    <strong style="color: #ff006e; text-shadow: 0 0 10px rgba(255, 0, 110, 0.5);">📊 統計資訊：</strong><br>
+                    <span style="color: #00f5ff;">快照間隔：${interval} 秒</span><br>
+                    <span style="color: #00f5ff;">已擷取快照：${snapshots.length} 張</span>
+                </div>`;
+
+                transcriptContent.innerHTML = html;
+                document.getElementById('transcriptSection').style.display = 'block';
+                return;
+            }
 
             if (!transcript || transcript.length === 0) {
                 transcriptContent.innerHTML = '<p style="color: #b967ff;">沒有可用的字幕</p>';
