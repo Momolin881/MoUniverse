@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebPages Keeper</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app">
+    <!-- 網頁資訊區 -->
+    <div class="page-info">
+      <img id="favicon" src="" alt="favicon" class="favicon">
+      <div class="page-details">
+        <input
+          id="pageTitle"
+          class="page-title-input"
+          placeholder="網頁標題"
+        />
+        <div id="pageUrl" class="page-url"></div>
+      </div>
+    </div>
+
+    <!-- 分類選擇區 -->
+    <div class="section">
+      <label class="section-label">📑 分類</label>
+      <div class="category-select-wrapper">
+        <select id="categorySelect" class="category-select">
+          <option value="">選擇分類...</option>
+        </select>
+        <button id="btnShowAddCategory" class="btn-icon">+</button>
+      </div>
+      <div id="addCategoryBox" class="add-item-box" style="display: none;">
+        <input
+          id="newCategoryInput"
+          placeholder="新增分類名稱"
+          class="add-input"
+        />
+        <button id="btnAddCategory" class="btn-add">新增</button>
+      </div>
+    </div>
+
+    <!-- 標籤選擇區 -->
+    <div class="section">
+      <label class="section-label">🏷️ 標籤</label>
+      <div class="tags-wrapper">
+        <div id="selectedTags" class="selected-tags"></div>
+        <button id="btnShowAddTag" class="btn-add-tag">+ 新增標籤</button>
+      </div>
+      <div id="addTagBox" class="add-item-box" style="display: none;">
+        <input
+          id="newTagInput"
+          placeholder="輸入標籤名稱"
+          class="add-input"
+          list="existing-tags"
+        />
+        <datalist id="existing-tags"></datalist>
+        <button id="btnAddTag" class="btn-add">新增</button>
+      </div>
+      <div id="popularTags" class="popular-tags"></div>
+    </div>
+
+    <!-- 備註區 -->
+    <div class="section">
+      <label class="section-label">📝 備註（選填）</label>
+      <textarea
+        id="noteTextarea"
+        placeholder="新增個人筆記..."
+        class="note-textarea"
+        rows="3"
+      ></textarea>
+    </div>
+
+    <!-- 操作按鈕區 -->
+    <div class="actions">
+      <button id="btnCopy" class="btn-primary">
+        📋 複製到剪貼簿
+      </button>
+    </div>
+
+    <!-- 成功提示 -->
+    <div id="successToast" class="success-toast" style="display: none;">
+      ✓ 已複製！可至 Notion 貼上
+    </div>
+  </div>
+
+  <!-- Storage API 封裝 -->
+  <script src="storage.js"></script>
+  <!-- 主程式 -->
+  <script src="popup.js"></script>
+</body>
+</html>
